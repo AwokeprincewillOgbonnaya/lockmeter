@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lockmeter – History</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #fff;
+            min-height: 100vh;
+        }
+
+        /* ── NAVBAR ── */
+        .navbar {
+            background: #fff;
+            border-bottom: 1px solid #e8edf5;
+            padding: 12px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .nav-logo img { width: 34px; height: auto; }
+        .nav-logo-text { font-size: 18px; font-weight: 700; color: #111; }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link {
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            padding: 8px 16px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #333;
+            cursor: pointer;
+            transition: color 0.15s, background 0.15s, border-bottom 0.15s;
+            border-radius: 6px 6px 0 0;
+        }
+        .nav-link:hover {
+            color: #1a6dff;
+            background: rgba(26, 109, 255, 0.08);
+        }
+        .nav-link.active {
+            color: #1a6dff;
+            border-bottom: 2px solid #1a6dff;
+        }
+        .nav-link.active:hover {
+            color: #1a6dff;
+            background: rgba(26, 109, 255, 0.08);
+            border-bottom: 2px solid #1a6dff;
+        }
+
+        .nav-right {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+        .user-btn:hover { background: rgba(26,109,255,0.08); }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #e0e6f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1a6dff;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .chevron { font-size: 12px; color: #555; }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 52px;
+            right: 0;
+            background: #fff;
+            border: 1.5px solid #e0e6f0;
+            border-radius: 14px;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.13);
+            min-width: 260px;
+            padding: 24px 20px 20px;
+            z-index: 200;
+            text-align: center;
+        }
+        .dropdown-menu.show { display: block; }
+
+        .dd-photo-wrap {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 14px;
+        }
+
+        .dd-photo {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: #1a6dff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 32px;
+            font-weight: 700;
+            border: 3px solid #e0e6f0;
+            overflow: hidden;
+        }
+
+        .dd-name { font-size: 16px; font-weight: 600; color: #111; margin-bottom: 18px; }
+        .dd-divider { height: 1px; background: #eef0f5; margin-bottom: 10px; }
+
+        .dd-btn {
+            display: block;
+            width: 100%;
+            padding: 11px 12px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-size: 15px;
+            color: #222;
+            text-align: center;
+            transition: background 0.15s, color 0.15s, border-bottom 0.15s;
+            margin-bottom: 2px;
+            border-radius: 6px 6px 0 0;
+        }
+        .dd-btn:hover { background: rgba(26,109,255,0.08); color: #1a6dff; }
+        .dd-btn.logout-btn { color: #cc0000; }
+        .dd-btn.logout-btn:hover { background: #fff0f0; color: #cc0000; }
+
+        .dd-mobile-links { display: none; }
+
+        /* ── MAIN ── */
+        .main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 52px 40px 80px;
+        }
+
+        /* ── TOP ROW ── */
+        .top-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 36px;
+            gap: 20px;
+        }
+
+        .title-block {}
+
+        .page-title {
+            font-size: 42px;
+            font-weight: 800;
+            color: #111;
+            margin-bottom: 10px;
+        }
+
+        .page-subtitle {
+            font-size: 15px;
+            font-weight: 500;
+            color: #1a6dff;
+            background: rgba(26,109,255,0.08);
+            display: inline-block;
+            padding: 7px 16px;
+            border-radius: 20px;
+        }
+
+        /* ── COUNTER CARD ── */
+        .counter-card {
+            border: 1.5px solid #e0e6f0;
+            border-radius: 14px;
+            padding: 18px 28px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-width: 240px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            flex-shrink: 0;
+        }
+
+        .counter-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(26,109,255,0.08);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .counter-text {}
+
+        .counter-label {
+            font-size: 13px;
+            color: #555;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .counter-number {
+            font-size: 36px;
+            font-weight: 800;
+            color: #111;
+            line-height: 1;
+        }
+
+        /* ── CLEAR ALL ── */
+        .clear-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 16px;
+        }
+
+        .btn-clear-all {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #cc0000;
+            padding: 6px 10px;
+            border-radius: 8px;
+            transition: background 0.15s;
+        }
+        .btn-clear-all:hover { background: #fff0f0; }
+
+        /* ── HISTORY LIST ── */
+        .history-list {}
+
+        .history-row {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            align-items: center;
+            padding: 18px 4px;
+            border-bottom: 1px solid #d0d7e8;
+            gap: 24px;
+        }
+
+        .history-row:last-child { border-bottom: none; }
+
+        .pw-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: #111;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        .pw-date {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #666;
+            white-space: nowrap;
+        }
+
+        .pw-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* copy wrap for popup positioning */
+        .copy-wrap {
+            position: relative;
+            display: inline-flex;
+        }
+
+        .copied-popup {
+            display: none;
+            position: absolute;
+            bottom: 30px;
+            right: 0;
+            font-size: 11px;
+            font-weight: 600;
+            color: #22cc44;
+            background: #fff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            white-space: nowrap;
+            z-index: 50;
+        }
+        .copied-popup.show { display: block; }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 7px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+        .btn-icon.copy:hover  { background: rgba(26,109,255,0.08); }
+        .btn-icon.delete:hover { background: #fff0f0; }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 20px;
+            text-align: center;
+        }
+        .empty-state.show { display: flex; }
+
+        .empty-icon {
+            width: 72px;
+            height: 72px;
+            background: rgba(26,109,255,0.08);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .empty-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111;
+            margin-bottom: 8px;
+        }
+
+        .empty-desc {
+            font-size: 15px;
+            color: #888;
+            margin-bottom: 24px;
+        }
+
+        .btn-go-generate {
+            padding: 11px 28px;
+            background: #1a6dff;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-go-generate:hover { background: #1558d6; }
+
+        /* ── Edit Modal ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 300;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.show { display: flex; }
+
+        .modal {
+            background: #fff;
+            border-radius: 14px;
+            padding: 32px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        }
+
+        .modal h3 { font-size: 17px; font-weight: 700; color: #111; margin-bottom: 20px; }
+
+        .modal input {
+            width: 100%;
+            padding: 10px 13px;
+            border: 1.5px solid #ccd4e8;
+            border-radius: 7px;
+            font-size: 14px;
+            outline: none;
+            margin-bottom: 16px;
+        }
+        .modal input:focus { border-color: #1a6dff; }
+
+        .modal-btns { display: flex; gap: 10px; }
+
+        .btn-cancel {
+            flex: 1; padding: 10px; background: #f0f4ff;
+            border: none; border-radius: 7px;
+            font-size: 14px; font-weight: 600; color: #555; cursor: pointer;
+        }
+
+        .btn-modal-save {
+            flex: 1; padding: 10px; background: #1a6dff;
+            border: none; border-radius: 7px;
+            font-size: 14px; font-weight: 600; color: #fff; cursor: pointer;
+        }
+        .btn-modal-save:hover { background: #1558d6; }
+
+        .modal-error { font-size: 12px; color: #cc0000; margin-bottom: 10px; display: none; }
+        .modal-error.show { display: block; }
+
+        .spinner {
+            display: inline-block; width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+            border-radius: 50%; animation: spin 0.7s linear infinite;
+            vertical-align: middle; margin-right: 6px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── LOADING ── */
+        .loading-row {
+            display: flex;
+            justify-content: center;
+            padding: 60px 0;
+        }
+
+        .loading-spinner {
+            width: 32px; height: 32px;
+            border: 3px solid #e0e6f0;
+            border-top-color: #1a6dff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @media (max-width: 900px) {
+            .nav-links { display: none; }
+            .dd-mobile-links { display: block; }
+
+            .main { padding: 32px 20px 60px; }
+            .page-title { font-size: 30px; }
+
+            .top-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .counter-card { width: 100%; }
+
+            .history-row {
+                grid-template-columns: 1fr auto;
+                gap: 12px;
+            }
+
+            .pw-date { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <a class="nav-logo" href="checkPassword.html">
+        <img src="/images/logo.png" alt="Lockmeter" />
+        <span class="nav-logo-text">Lockmeter</span>
+    </a>
+
+    <div class="nav-links">
+        <button class="nav-link" onclick="window.location.href='checkPassword.html'">Check Password</button>
+        <button class="nav-link" onclick="window.location.href='generatePassword.html'">Generate password</button>
+        <button class="nav-link" onclick="window.location.href='securityTips.html'">Security Tips</button>
+    </div>
+
+    <div class="nav-right">
+        <button class="user-btn" onclick="toggleDropdown()">
+            <div class="user-avatar" id="userAvatar">U</div>
+            <span class="chevron">▼</span>
+        </button>
+
+        <div class="dropdown-menu" id="dropdownMenu">
+            <div class="dd-photo-wrap">
+                <div class="dd-photo" id="ddPhoto">U</div>
+            </div>
+            <p class="dd-name" id="ddName">User</p>
+            <div class="dd-divider"></div>
+
+            <div class="dd-mobile-links">
+                <button class="dd-btn" onclick="window.location.href='checkPassword.html'">Check Password</button>
+                <button class="dd-btn" onclick="window.location.href='generatePassword.html'">Generate Password</button>
+                <button class="dd-btn" onclick="window.location.href='securityTips.html'">Security Tips</button>
+                <div class="dd-divider"></div>
+            </div>
+
+            <button class="dd-btn" onclick="openEditModal()">Edit Name</button>
+            <button class="dd-btn" onclick="window.location.href='history.html'">History</button>
+            <div class="dd-divider" style="margin-top:8px;"></div>
+            <button class="dd-btn logout-btn" onclick="handleLogout()">Log Out</button>
+        </div>
+    </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+    <!-- TOP ROW -->
+    <div class="top-row">
+        <div class="title-block">
+            <h1 class="page-title">History</h1>
+            <span class="page-subtitle">View and manage your previously generated passwords</span>
+        </div>
+
+        <div class="counter-card">
+            <div class="counter-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#1a6dff" stroke-width="2" stroke-linejoin="round"/>
+                    <polyline points="14 2 14 8 20 8" stroke="#1a6dff" stroke-width="2" stroke-linejoin="round"/>
+                    <line x1="8" y1="13" x2="16" y2="13" stroke="#1a6dff" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="8" y1="17" x2="16" y2="17" stroke="#1a6dff" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="counter-text">
+                <p class="counter-label">Total Passwords generated</p>
+                <p class="counter-number" id="counterNumber">0</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CLEAR ALL -->
+    <div class="clear-row" id="clearRow" style="display:none;">
+        <button class="btn-clear-all" onclick="handleClearAll()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <polyline points="3 6 5 6 21 6" stroke="#cc0000" stroke-width="2" stroke-linecap="round"/>
+                <path d="M19 6l-1 14H6L5 6" stroke="#cc0000" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M10 11v6M14 11v6" stroke="#cc0000" stroke-width="2" stroke-linecap="round"/>
+                <path d="M9 6V4h6v2" stroke="#cc0000" stroke-width="2" stroke-linejoin="round"/>
+            </svg>
+            Clear All
+        </button>
+    </div>
+
+    <!-- LOADING -->
+    <div class="loading-row" id="loadingRow">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div class="empty-state" id="emptyState">
+        <div class="empty-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#1a6dff" stroke-width="2" stroke-linejoin="round"/>
+                <polyline points="14 2 14 8 20 8" stroke="#1a6dff" stroke-width="2" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <p class="empty-title">No passwords saved yet</p>
+        <p class="empty-desc">Generate a password and save it to see it here.</p>
+        <button class="btn-go-generate" onclick="window.location.href='generatePassword.html'">
+            Generate Password
+        </button>
+    </div>
+
+    <!-- HISTORY LIST -->
+    <div class="history-list" id="historyList"></div>
+
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal">
+        <h3>Edit Your Name</h3>
+        <p class="modal-error" id="modalError"></p>
+        <input type="text" id="newName" placeholder="Enter new username" />
+        <div class="modal-btns">
+            <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+            <button class="btn-modal-save" id="modalSaveBtn" onclick="handleUpdateName()">Save</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = 'http://localhost:8090';
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const userId   = localStorage.getItem('userId');
+        const userName = localStorage.getItem('userName') || 'User';
+        if (!userId) { window.location.href = 'login.html'; return; }
+
+        const initial = userName.charAt(0).toUpperCase();
+        document.getElementById('userAvatar').textContent = initial;
+        document.getElementById('ddPhoto').textContent    = initial;
+        document.getElementById('ddName').textContent     = userName;
+        document.getElementById('newName').value          = userName;
+
+        loadHistory();
+    });
+
+    async function loadHistory() {
+        const userId = localStorage.getItem('userId');
+        try {
+            const res    = await fetch(`${API_BASE}/api/password/history/${userId}`);
+            const result = await res.json();
+
+            document.getElementById('loadingRow').style.display = 'none';
+
+            if (res.ok && result.data) {
+                const list = result.data;
+                document.getElementById('counterNumber').textContent = list.length;
+
+                if (list.length === 0) {
+                    document.getElementById('emptyState').classList.add('show');
+                } else {
+                    document.getElementById('clearRow').style.display = 'flex';
+                    renderHistory(list);
+                }
+            }
+        } catch(e) {
+            document.getElementById('loadingRow').style.display = 'none';
+            document.getElementById('emptyState').classList.add('show');
+        }
+    }
+
+    function renderHistory(list) {
+        const container = document.getElementById('historyList');
+        container.innerHTML = '';
+
+        list.forEach(item => {
+            const date = new Date(item.createdAt);
+            const formatted = date.toLocaleDateString('en-US', {
+                month: 'long', day: 'numeric', year: 'numeric'
+            });
+
+            const row = document.createElement('div');
+            row.className = 'history-row';
+            row.id = `row-${item.id}`;
+            row.innerHTML = `
+                <span class="pw-text">${item.generatedPassword}</span>
+                <div class="pw-date">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="4" width="18" height="18" rx="2" stroke="#888" stroke-width="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6" stroke="#888" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="8" y1="2" x2="8" y2="6" stroke="#888" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="3" y1="10" x2="21" y2="10" stroke="#888" stroke-width="2"/>
+                    </svg>
+                    ${formatted}
+                </div>
+                <div class="pw-actions">
+                    <div class="copy-wrap">
+                        <div class="copied-popup" id="popup-${item.id}">Copied!</div>
+                        <button class="btn-icon copy" onclick="copyPassword('${item.generatedPassword}', ${item.id})" title="Copy">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                <rect x="9" y="9" width="13" height="13" rx="2" stroke="#1a6dff" stroke-width="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="#1a6dff" stroke-width="2"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <button class="btn-icon delete" onclick="handleDelete(${item.id})" title="Delete">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <polyline points="3 6 5 6 21 6" stroke="#cc0000" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M19 6l-1 14H6L5 6" stroke="#cc0000" stroke-width="2" stroke-linejoin="round"/>
+                            <path d="M10 11v6M14 11v6" stroke="#cc0000" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M9 6V4h6v2" stroke="#cc0000" stroke-width="2" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            container.appendChild(row);
+        });
+    }
+
+    function copyPassword(password, id) {
+        navigator.clipboard.writeText(password).then(() => {
+            const popup = document.getElementById(`popup-${id}`);
+            popup.classList.add('show');
+            setTimeout(() => popup.classList.remove('show'), 1800);
+        });
+    }
+
+    async function handleDelete(historyId) {
+        try {
+            const res = await fetch(`${API_BASE}/api/password/history/${historyId}`, {
+                method: 'DELETE'
+            });
+            if (res.ok) {
+                const row = document.getElementById(`row-${historyId}`);
+                if (row) row.remove();
+
+                const remaining = document.querySelectorAll('.history-row').length;
+                document.getElementById('counterNumber').textContent = remaining;
+
+                if (remaining === 0) {
+                    document.getElementById('clearRow').style.display = 'none';
+                    document.getElementById('emptyState').classList.add('show');
+                }
+            }
+        } catch(e) { console.error(e); }
+    }
+
+    async function handleClearAll() {
+        const userId = localStorage.getItem('userId');
+        try {
+            const res = await fetch(`${API_BASE}/api/password/history/clear/${userId}`, {
+                method: 'DELETE'
+            });
+            if (res.ok) {
+                document.getElementById('historyList').innerHTML = '';
+                document.getElementById('counterNumber').textContent = '0';
+                document.getElementById('clearRow').style.display = 'none';
+                document.getElementById('emptyState').classList.add('show');
+            }
+        } catch(e) { console.error(e); }
+    }
+
+    function toggleDropdown() {
+        document.getElementById('dropdownMenu').classList.toggle('show');
+    }
+
+    document.addEventListener('click', e => {
+        const nav = document.querySelector('.nav-right');
+        if (!nav.contains(e.target)) document.getElementById('dropdownMenu').classList.remove('show');
+    });
+
+    function openEditModal() {
+        document.getElementById('dropdownMenu').classList.remove('show');
+        document.getElementById('editModal').classList.add('show');
+        document.getElementById('newName').value = localStorage.getItem('userName') || '';
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').classList.remove('show');
+        document.getElementById('modalError').classList.remove('show');
+    }
+
+    async function handleUpdateName() {
+        const newName = document.getElementById('newName').value.trim();
+        const userId  = localStorage.getItem('userId');
+        const btn     = document.getElementById('modalSaveBtn');
+        const err     = document.getElementById('modalError');
+        err.classList.remove('show');
+        if (!newName) { err.textContent = 'Name cannot be empty.'; err.classList.add('show'); return; }
+        btn.disabled = true; btn.textContent = 'Saving...';
+        try {
+            const res = await fetch(`${API_BASE}/api/auth/${userId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userName: newName })
+            });
+            if (res.ok) {
+                localStorage.setItem('userName', newName);
+                const initial = newName.charAt(0).toUpperCase();
+                document.getElementById('userAvatar').textContent = initial;
+                document.getElementById('ddPhoto').textContent    = initial;
+                document.getElementById('ddName').textContent     = newName;
+                closeEditModal();
+            } else {
+                const r = await res.json();
+                err.textContent = r.message || 'Update failed.';
+                err.classList.add('show');
+            }
+        } catch(e) { err.textContent = 'Cannot connect to server.'; err.classList.add('show'); }
+        finally { btn.disabled = false; btn.textContent = 'Save'; }
+    }
+
+    function handleLogout() { localStorage.clear(); window.location.href = 'login.html'; }
+</script>
+
+</body>
+</html>
